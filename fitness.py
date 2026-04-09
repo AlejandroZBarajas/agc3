@@ -1,35 +1,34 @@
-from config import USER_INPUT
+# fitness.py
+
+from individuo import calcular_duracion, calcular_if_promedio
 
 
-def calcular_metricas(ind):
+def funcion_aptitud(individuo, config):
+    """
+    Función de aptitud basada en:
+    - duración total
+    - IF promedio
+    - contraste de intensidades
+    """
 
-    total_tiempo = 0
-    suma_if = 0
-    total_intervalos = 0
+    dur = calcular_duracion(individuo)
+    if_prom = calcular_if_promedio(individuo)
 
-    for b in ind.bloques:
+    if_min, if_max = config["if_range"]
+    dur_min, dur_max = config["duracion_total"]
 
-        dur_total = b.duracion * b.repeticiones
+    # --- Fitness IF ---
+    centro_if = (if_min + if_max) / 2
+    fit_if = 1 - abs(if_prom - centro_if)
 
-        total_tiempo += dur_total
-        suma_if += b.intensidad * dur_total
+    # --- Fitness duración ---
+    centro_dur = (dur_min + dur_max) / 2
+    fit_dur = 1 - abs(dur - centro_dur) / centro_dur
 
-        if b.tipo == "intervalo":
-            total_intervalos += b.repeticiones
+    # --- Contraste ---
+    intensidades = [i for _, i in individuo]
+    contraste = max(intensidades) - min(intensidades)
+    fit_contraste = min(contraste / 0.5, 1.0)
 
-    ind.duracion = total_tiempo
-    ind.IF = suma_if / total_tiempo
-
-    horas = total_tiempo / 60
-    ind.TSS = horas * (ind.IF ** 2) * 100
-
-    ind.intervalos = total_intervalos
-
-
-def evaluar_fitness(ind):
-
-    f_time = 1 - abs(ind.duracion - USER_INPUT["duracion_obj"]) / USER_INPUT["duracion_obj"]
-    f_tss = 1 - abs(ind.TSS - USER_INPUT["tss_obj"]) / USER_INPUT["tss_obj"]
-    f_int = 1 - abs(ind.intervalos - USER_INPUT["intervalos_obj"]) / USER_INPUT["intervalos_obj"]
-
-    ind.fitness = (f_time * 0.4 + f_int * 0.4 + f_tss * 0.2)
+    # --- Fitness total ---
+    return 0.4 * fit_if + 0.4 * fit_dur + 0.2 * fit_contraste
