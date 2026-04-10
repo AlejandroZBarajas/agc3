@@ -2,14 +2,7 @@
 
 from individuo import calcular_duracion, calcular_if_promedio
 
-
 def funcion_aptitud(individuo, config):
-    """
-    Función de aptitud basada en:
-    - duración total
-    - IF promedio
-    - contraste de intensidades
-    """
 
     dur = calcular_duracion(individuo)
     if_prom = calcular_if_promedio(individuo)
@@ -17,18 +10,40 @@ def funcion_aptitud(individuo, config):
     if_min, if_max = config["if_range"]
     dur_min, dur_max = config["duracion_total"]
 
-    # --- Fitness IF ---
-    centro_if = (if_min + if_max) / 2
-    fit_if = 1 - abs(if_prom - centro_if)
+    # 🎯 Objetivo REAL
+    objetivo_if = (if_min + if_max) / 2
 
-    # --- Fitness duración ---
+    # 🔥 Error IF (más agresivo)
+    error_if = abs(if_prom - objetivo_if)
+    fit_if = max(0, 1 - (error_if * 2))  # penalización fuerte
+
+    # 🔥 Error duración
     centro_dur = (dur_min + dur_max) / 2
-    fit_dur = 1 - abs(dur - centro_dur) / centro_dur
+    error_dur = abs(dur - centro_dur) / centro_dur
+    fit_dur = max(0, 1 - error_dur)
 
-    # --- Contraste ---
+    # 🔥 Contraste útil
     intensidades = [i for _, i in individuo]
     contraste = max(intensidades) - min(intensidades)
     fit_contraste = min(contraste / 0.5, 1.0)
 
-    # --- Fitness total ---
-    return 0.4 * fit_if + 0.4 * fit_dur + 0.2 * fit_contraste
+    # 🔥 NUEVO: penalización por incoherencia fisiológica
+    penalizacion = 0
+
+    for idx, (_, if_) in enumerate(individuo):
+
+        if idx == 0 or idx == len(individuo) - 1:
+            if if_ > 0.75:
+                penalizacion += 0.1
+
+        elif idx % 2 == 1:
+            if if_ < if_min:
+                penalizacion += 0.2
+
+        else:
+            if if_ > if_max:
+                penalizacion += 0.2
+
+    fitness = (0.5 * fit_if + 0.3 * fit_dur + 0.2 * fit_contraste) - penalizacion
+
+    return max(0, fitness)

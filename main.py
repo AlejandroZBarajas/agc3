@@ -3,37 +3,29 @@
 from ga import ejecutar_ag
 from individuo import calcular_duracion, calcular_if_promedio
 from validacion import validar_con_dataset
-
+from config import INTENSIDAD_MAP, CONFIG_BASE  
 
 # -------------------------------
 # Configuración
 # -------------------------------
-CONFIG = {
-    "duracion_total": (40, 90),
+USER_INPUT = {
+    "ftp": 250,  # watts del ciclista
+    "intensidad": "moderada"
+}
 
-    "intervalos": (3, 6),
+nivel = USER_INPUT["intensidad"]
+ftp = USER_INPUT["ftp"]
 
-    "duracion_intervalo": (3, 8),
-    "recuperacion": (2, 5),
+config_intensidad = INTENSIDAD_MAP[nivel]
 
-    "duracion_calentamiento": (8, 15),
-    "duracion_enfriamiento": (5, 10),
+config = {
+    **config_intensidad,
+    **CONFIG_BASE,
 
-    "if_intervalo": (0.85, 1.05),
-    "if_recuperacion": (0.40, 0.55),
-    "if_calentamiento": (0.40, 0.65),
-    "if_enfriamiento": (0.40, 0.65),
-
-    "if_range": (0.4, 1.05),
-
+    # parámetros del AG
     "tam_pob": 50,
     "generaciones": 30
 }
-
-USER_INPUT = {
-    "ftp": 250  # watts del ciclista
-}
-
 
 # -------------------------------
 # Mostrar entrenamiento detallado
@@ -63,7 +55,7 @@ def imprimir_entrenamiento(ind, ftp):
 # -------------------------------
 def main():
 
-    mejores = ejecutar_ag(CONFIG, USER_INPUT["ftp"])
+    mejores = ejecutar_ag(config, ftp)
 
     print("\n===== MEJORES ENTRENAMIENTOS =====")
 

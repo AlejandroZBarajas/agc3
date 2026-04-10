@@ -1,70 +1,23 @@
 import random
 
-def generar_individuo(config, ftp):
-    individuo = []
+def generar_individuo(config):
 
-    # 🔹 NUEVO: obtenemos el FTP del usuario desde config
-    #ftp = config["ftp"]
+    bloques = []
 
-    # 🔹 NUEVO: definimos límites en términos de IF (no watts)
-    # (recuerda: IF = potencia / FTP)
-    MIN_IF_INTERVALO = 0.85
-    MAX_IF_INTERVALO = 1.05
+    bloques.append((10, random.uniform(0.5, 0.65)))
 
-    MIN_IF_RECUP = 0.40
-    MAX_IF_RECUP = 0.65
+    n_min, n_max = config["intervalos"]
+    n = random.randint(n_min, n_max)
 
-    # =========================
-    # 🔥 CALENTAMIENTO
-    # =========================
-    dur_warm = random.randint(*config["duracion_calentamiento"])
+    if_min, if_max = config["if_range"]
 
-    # ⚠️ CAMBIO: limitamos también el calentamiento a zona baja
-    if_warm = random.uniform(0.50, 0.70)
+    for _ in range(n):
+        bloques.append((3, random.uniform(if_min, if_max)))  # intervalo
+        bloques.append((2, random.uniform(0.4, 0.6)))        # recovery
 
-    individuo.append((dur_warm, if_warm))
+    bloques.append((10, random.uniform(0.5, 0.65)))
 
-
-    # =========================
-    # 🔁 INTERVALOS + RECUP
-    # =========================
-    num_intervalos = random.randint(*config["intervalos"])
-
-    for _ in range(num_intervalos):
-
-        # -------- INTERVALO --------
-        dur_i = random.randint(*config["duracion_intervalo"])
-
-        # 🔥 CAMBIO CLAVE:
-        # Antes usabas config["if_intervalo"]
-        # Ahora FORZAMOS a que cumpla mínimo 0.85 IF
-        if_i = random.uniform(MIN_IF_INTERVALO, MAX_IF_INTERVALO)
-
-        individuo.append((dur_i, if_i))
-
-
-        # -------- RECUPERACIÓN --------
-        dur_r = random.randint(*config["recuperacion"])
-
-        # 🔥 CAMBIO CLAVE:
-        # Limitamos recuperación para que nunca sea intensa
-        if_r = random.uniform(MIN_IF_RECUP, MAX_IF_RECUP)
-
-        individuo.append((dur_r, if_r))
-
-
-    # =========================
-    # ❄️ ENFRIAMIENTO
-    # =========================
-    dur_cool = random.randint(*config["duracion_enfriamiento"])
-
-    # ⚠️ CAMBIO: igual que calentamiento → zona baja
-    if_cool = random.uniform(0.50, 0.70)
-
-    individuo.append((dur_cool, if_cool))
-
-
-    return individuo
+    return bloques
 
 
 # =========================

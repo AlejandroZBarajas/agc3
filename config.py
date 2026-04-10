@@ -21,3 +21,15 @@ INTENSIDAD_MAP = {
         "recuperacion": (2, 3)
     }
 }
+
+CONFIG_BASE = {
+    "duracion_calentamiento": (8, 12),
+    "duracion_enfriamiento": (8, 12)
+}
+
+IF_TIPOS = {
+    "calentamiento": (0.60, 0.75),
+    "intervalo": None,  # usa if_range de intensidad
+    "recuperacion": (0.40, 0.65),
+    "enfriamiento": (0.60, 0.75)
+}

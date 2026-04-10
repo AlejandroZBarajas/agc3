@@ -8,8 +8,8 @@ from fitness import funcion_aptitud
 # -------------------------------
 # 1. Inicialización
 # -------------------------------
-def inicializar_poblacion(config, tam_pob, ftp):
-    return [generar_individuo(config, ftp) for _ in range(tam_pob)]
+def inicializar_poblacion(config, tam_pob):
+    return [generar_individuo(config) for _ in range(tam_pob)]
 
 
 # -------------------------------
@@ -35,32 +35,54 @@ def cruza(padre1, padre2):
 def mutacion(individuo, config, prob=0.1):
 
     for i in range(len(individuo)):
+
         if random.random() < prob:
 
-            dur, if_actual = individuo[i]
+            dur, intensidad = individuo[i]
 
-            # 🔥 Paso 1: perturbación local
-            delta = random.uniform(-0.05, 0.05)
-            nuevo_if = if_actual + delta
+            # 🔵 Mutar intensidad (como ya haces)
+            delta_if = random.uniform(-0.08, 0.08)
+            nueva_if = intensidad + delta_if
 
-            # 🔥 Paso 2: clamp según tipo de bloque
             if i == 0:
-                # calentamiento
-                nuevo_if = max(0.50, min(0.70, nuevo_if))
+                if_min, if_max = (0.60, 0.75)
 
             elif i == len(individuo) - 1:
-                # enfriamiento
-                nuevo_if = max(0.50, min(0.70, nuevo_if))
+                if_min, if_max = (0.60, 0.75)
 
             elif i % 2 == 1:
-                # intervalo
-                nuevo_if = max(0.85, min(1.05, nuevo_if))
+                    # intervalo
+                if_min, if_max = config["if_range"]
 
             else:
                 # recuperación
-                nuevo_if = max(0.40, min(0.65, nuevo_if))
+                if_min, if_max = (0.40, 0.65)
+                    
+            nueva_if = max(if_min, min(if_max, nueva_if))
 
-            individuo[i] = (dur, nuevo_if)
+            # 🔴 NUEVO: mutar duración
+            if i == 0:
+                # calentamiento
+                dur_min, dur_max = config["duracion_calentamiento"]
+
+            elif i == len(individuo) - 1:
+                # enfriamiento
+                dur_min, dur_max = config["duracion_enfriamiento"]
+
+            elif i % 2 == 1:
+                # intervalo
+                dur_min, dur_max = config["duracion_intervalo"]
+
+            else:
+                # recuperación
+                dur_min, dur_max = config["recuperacion"]
+
+            # pequeña mutación de duración
+            delta_dur = random.randint(-1, 1)
+            nueva_dur = dur + delta_dur
+            nueva_dur = max(dur_min, min(dur_max, nueva_dur))
+
+            individuo[i] = (nueva_dur, nueva_if)
 
     return individuo
 
@@ -81,7 +103,7 @@ def ejecutar_ag(config, ftp):
     tam_pob = config["tam_pob"]
     generaciones = config["generaciones"]
 
-    poblacion = inicializar_poblacion(config, tam_pob, ftp)
+    poblacion = inicializar_poblacion(config, tam_pob)
 
     for gen in range(generaciones):
 
