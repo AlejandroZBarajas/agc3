@@ -55,7 +55,8 @@ def imprimir_entrenamiento(ind, ftp):
 # -------------------------------
 def main():
 
-    mejores = ejecutar_ag(config, ftp)
+    #mejores = ejecutar_ag(config, ftp)
+    mejores, historial = ejecutar_ag(config, USER_INPUT["ftp"])
 
     print("\n===== MEJORES ENTRENAMIENTOS =====")
 
