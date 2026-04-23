@@ -12,17 +12,17 @@ def generar_individuo(config):
     if_min, if_max = config["if_range"]
 
     for _ in range(n):
-        bloques.append((3, random.uniform(if_min, if_max)))  # intervalo
-        bloques.append((2, random.uniform(0.4, 0.6)))        # recovery
+        dur_int = random.randint(*config["duracion_intervalo"])
+        dur_rec = random.randint(*config["recuperacion"])
+
+        bloques.append((dur_int, random.uniform(if_min, if_max)))
+        bloques.append((dur_rec, random.uniform(0.4, 0.65)))      # recovery
 
     bloques.append((10, random.uniform(0.5, 0.65)))
 
     return bloques
 
 
-# =========================
-# 📊 MÉTRICAS
-# =========================
 
 def calcular_duracion(ind):
     return sum(d for d, _ in ind)
